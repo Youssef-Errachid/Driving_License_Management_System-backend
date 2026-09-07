@@ -1,6 +1,6 @@
 package com.drivinglicense.entity;
 
-import com.drivinglicense.enums.BlockingStatus;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;

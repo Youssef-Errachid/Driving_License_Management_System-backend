@@ -1,9 +1,6 @@
 package com.drivinglicense.entity;
 
-import com.drivinglicense.enums.Role;
-import com.drivinglicense.enums.UserStatus;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 

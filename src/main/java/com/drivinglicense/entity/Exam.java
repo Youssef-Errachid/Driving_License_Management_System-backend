@@ -4,6 +4,7 @@ import com.drivinglicense.enums.ExamResult;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Getter
 @Setter
+@SuperBuilder
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "exam_type")
 public abstract class Exam {

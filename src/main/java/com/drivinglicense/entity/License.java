@@ -67,7 +67,7 @@ public class License {
     private Driver driver;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "categorie_id", nullable = false, updatable = false)
+    @JoinColumn(name = "category_id", nullable = false, updatable = false)
     private LicenseCategory licenseCategory;
 
     @ManyToOne(optional = false)

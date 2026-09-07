@@ -16,6 +16,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Builder
+@Table(name = "app_user")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,7 +40,7 @@ public class User {
     private Role role;
 
     @OneToOne
-    @JoinColumn(name = "person_id", referencedColumnName = "id", unique = true)
+    @JoinColumn(name = "person_id", referencedColumnName = "id", unique = true, nullable = false)
     @NotNull(message = "the user should be related to an exist person")
     private Person person;
 }

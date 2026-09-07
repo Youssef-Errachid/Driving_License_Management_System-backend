@@ -34,7 +34,7 @@ public interface RequestMapper {
         if(request.getCancelledBy() != null){
             dto.setCancelledByEmail(request.getCancelledBy().getEmail());
         }
-        if(request.getRequestStatus() != null){
+        if(request.getOriginalRequest() != null){
             dto.setOriginalRequestId(request.getOriginalRequest().getId());
         }
 

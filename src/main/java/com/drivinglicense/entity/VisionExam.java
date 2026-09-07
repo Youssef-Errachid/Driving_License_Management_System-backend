@@ -2,12 +2,13 @@ package com.drivinglicense.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @NoArgsConstructor
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @DiscriminatorValue("VISION")
 public class VisionExam extends Exam{
 }
