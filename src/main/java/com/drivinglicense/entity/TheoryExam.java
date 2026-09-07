@@ -4,13 +4,14 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @DiscriminatorValue("THEORY")
 public class TheoryExam extends Exam{
     @Min(value = 0,message = "score should be positive not negative")
