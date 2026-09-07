@@ -18,4 +18,5 @@ public class RequestCreateDTO {
     private ServiceType serviceType;
 
     private Long licenseCategoryId;
+    private Long originalRequestId;
 }

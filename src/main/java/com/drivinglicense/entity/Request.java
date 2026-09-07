@@ -48,4 +48,8 @@ public class Request {
     @ManyToOne
     @JoinColumn(name = "cancelled_by_user_id")
     private User cancelledBy;
+
+    @ManyToOne
+    @JoinColumn(name = "original-request-id", updatable = false)
+    private Request originalRequest;
 }
