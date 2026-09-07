@@ -33,6 +33,7 @@ public class Request {
     @Enumerated(EnumType.STRING)
     private RequestStatus requestStatus = RequestStatus.NEW;
 
+    @Enumerated(EnumType.STRING)
     private ServiceType serviceType;
 
     @NotNull(message = "request should be related to an existing person")
@@ -45,6 +46,6 @@ public class Request {
     private LicenseCategory licenseCategory;
 
     @ManyToOne
-    @JoinColumn(name = "cancellled_by_user_id")
+    @JoinColumn(name = "cancelled_by_user_id")
     private User cancelledBy;
 }

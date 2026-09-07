@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.springframework.cglib.core.Local;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,7 +21,7 @@ public class Payment {
     private Long id;
 
     @NotNull(message = "amount is required")
-    @DecimalMin(value = "0,0",inclusive = false,message = "amount should be positive")
+    @DecimalMin(value = "0.0",inclusive = false,message = "amount should be positive")
     @Column(nullable = false,updatable = false, precision = 10, scale = 2)
     private BigDecimal amount;
 
