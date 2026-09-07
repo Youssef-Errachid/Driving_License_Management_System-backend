@@ -42,7 +42,7 @@ public class Request {
     private  Person person;
 
     @ManyToOne
-    @JoinColumn(name = "categorie_id", updatable = false)
+    @JoinColumn(name = "category_id", updatable = false)
     private LicenseCategory licenseCategory;
 
     @ManyToOne
@@ -50,6 +50,6 @@ public class Request {
     private User cancelledBy;
 
     @ManyToOne
-    @JoinColumn(name = "original-request-id", updatable = false)
+    @JoinColumn(name = "original_request_id", updatable = false)
     private Request originalRequest;
 }
