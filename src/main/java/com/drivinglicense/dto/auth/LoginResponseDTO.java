@@ -10,10 +10,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LoginResponseDTO {
-
     private String token;
     private String email;
     private Role role;
     private String fullName;
-
 }

@@ -14,6 +14,7 @@ public interface LicenseMapper {
         License license = new License();
         license.setConditions(dto.getConditions());
         license.setHolderPhoto(dto.getHolderPhoto());
+        license.setIssueReason(dto.getIssueReason());
 
         return license;
     }
