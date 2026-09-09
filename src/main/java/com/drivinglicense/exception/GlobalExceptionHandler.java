@@ -77,9 +77,16 @@ public class GlobalExceptionHandler {
         log.error("Unhandled exception at {}", request.getRequestURI(), ex);
         return buildResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                "Une erreur interne est survenue. Veuillez reessayer plus tard.",
+                "An internal error occurred. Please try again later.",
                 request
         );
+    }
+
+    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
+    public ResponseEntity<ErrorResponseDTO> handleAuthenticationException(
+            org.springframework.security.core.AuthenticationException ex, HttpServletRequest request) {
+
+        return buildResponse(HttpStatus.UNAUTHORIZED, "password or email are incorrect", request);
     }
 
     private ResponseEntity<ErrorResponseDTO> buildResponse(
