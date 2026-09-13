@@ -7,4 +7,6 @@ public interface DriverService {
     DriverResponseDTO getById(Long id);
 
     DriverResponseDTO getByNationalNumber(String nationalNumber);
+
+    DriverResponseDTO getByLicenseNumber(String licenseNumber);
 }
