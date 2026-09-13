@@ -10,6 +10,7 @@ import com.drivinglicense.service.RequestService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,18 +20,21 @@ public class RequestController {
 
     private final RequestService requestService;
 
+    @PreAuthorize("hasRole('AGENT')")
     @PostMapping
     public ResponseEntity<ApiResponseDTO<RequestResponseDTO>> create(@Valid @RequestBody RequestCreateDTO dto) {
         RequestResponseDTO response = requestService.create(dto);
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Request created successfully.", response));
     }
 
+    @PreAuthorize("hasRole('AGENT')")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponseDTO<RequestResponseDTO>> getById(@PathVariable Long id) {
         RequestResponseDTO response = requestService.getById(id);
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Request retrieved successfully.", response));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','AGENT')")
     @GetMapping
     public ResponseEntity<ApiResponseDTO<PageResponseDTO<RequestResponseDTO>>> getAll(
             @RequestParam(required = false) RequestStatus status,
@@ -43,6 +47,7 @@ public class RequestController {
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Requests retrieved successfully.", response));
     }
 
+    @PreAuthorize("hasRole('AGENT')")
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<ApiResponseDTO<RequestResponseDTO>> cancel(@PathVariable Long id) {
         RequestResponseDTO response = requestService.cancel(id);
