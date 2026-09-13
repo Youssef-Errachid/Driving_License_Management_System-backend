@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public interface ExamRepository extends JpaRepository<Exam, Long> {
 
@@ -19,4 +20,6 @@ public interface ExamRepository extends JpaRepository<Exam, Long> {
 
     @Query("SELECT COUNT(e) FROM PracticalExam e WHERE e.appointmentDate = :date")
     long countPracticalByAppointmentDate(@Param("date") LocalDate date);
+
+    List<Exam> findByRequest_IdOrderByIdAsc(Long requestId);
 }
