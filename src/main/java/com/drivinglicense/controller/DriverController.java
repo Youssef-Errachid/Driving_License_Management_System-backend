@@ -2,6 +2,7 @@ package com.drivinglicense.controller;
 
 import com.drivinglicense.dto.common.ApiResponseDTO;
 import com.drivinglicense.dto.driver.DriverResponseDTO;
+import com.drivinglicense.exception.BusinessException;
 import com.drivinglicense.service.DriverService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +25,17 @@ public class DriverController {
 
     @PreAuthorize("hasRole('AGENT')")
     @GetMapping("/search")
-    public ResponseEntity<ApiResponseDTO<DriverResponseDTO>> searchByNationalNumber(
-            @RequestParam String nationalNumber) {
-        DriverResponseDTO response = driverService.getByNationalNumber(nationalNumber);
+    public ResponseEntity<ApiResponseDTO<DriverResponseDTO>> search(
+            @RequestParam(required = false) String nationalNumber,
+            @RequestParam(required = false) String licenseNumber) {
+        DriverResponseDTO response;
+        if (nationalNumber != null && !nationalNumber.isBlank()) {
+            response = driverService.getByNationalNumber(nationalNumber);
+        } else if (licenseNumber != null && !licenseNumber.isBlank()) {
+            response = driverService.getByLicenseNumber(licenseNumber);
+        } else {
+            throw new BusinessException("either nationalNumber or licenseNumber must be provided");
+        }
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Driver retrieved successfully.", response));
     }
 }

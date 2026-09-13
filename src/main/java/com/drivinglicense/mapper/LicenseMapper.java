@@ -5,7 +5,6 @@ import com.drivinglicense.dto.license.LicenseResponseDTO;
 import com.drivinglicense.dto.license.LicenseSummaryDTO;
 import com.drivinglicense.entity.License;
 import org.mapstruct.Mapper;
-
 import java.util.List;
 
 @Mapper(componentModel = "spring")
@@ -14,13 +13,9 @@ public interface LicenseMapper {
         License license = new License();
         license.setConditions(dto.getConditions());
         license.setHolderPhoto(dto.getHolderPhoto());
-        license.setIssueReason(dto.getIssueReason());
-
         return license;
     }
-
     default LicenseResponseDTO toResponseDTO(License license){
-
         LicenseResponseDTO dto = new LicenseResponseDTO();
         dto.setId(license.getId());
         dto.setLicenseNumber(license.getLicenseNumber());
@@ -33,7 +28,6 @@ public interface LicenseMapper {
         dto.setHolderBirthDate(license.getHolderBirthDate());
         dto.setIssueReason(license.getIssueReason());
         dto.setBlockingStatus(license.getBlockingStatus());
-
         if(license.getDriver() != null){
             dto.setDriverId(license.getDriver().getId());
         }
@@ -43,20 +37,16 @@ public interface LicenseMapper {
         if(license.getIssuingAgent()  != null){
             dto.setIssuingAgentEmail(license.getIssuingAgent().getEmail());
         }
-
         return dto;
     }
-
     default LicenseSummaryDTO toSummaryDTO(License license){
         LicenseSummaryDTO dto = new LicenseSummaryDTO();
         dto.setId(license.getId());
         dto.setLicenseName(license.getLicenseNumber());
         dto.setExpirationDate(license.getExpirationDate());
         dto.setBlockingStatus(license.getBlockingStatus());
-
         return dto;
     }
-
     List<LicenseResponseDTO> toResponseDTOList(List<License> licenses);
     List<LicenseSummaryDTO> toSummaryDTOList(List<License> licenses);
 }
