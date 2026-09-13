@@ -3,7 +3,6 @@ package com.drivinglicense.service.impl;
 import com.drivinglicense.dto.common.PageResponseDTO;
 import com.drivinglicense.dto.request.RequestCreateDTO;
 import com.drivinglicense.dto.request.RequestResponseDTO;
-import com.drivinglicense.entity.LicenseCategory;
 import com.drivinglicense.entity.Person;
 import com.drivinglicense.entity.Request;
 import com.drivinglicense.entity.User;
@@ -12,11 +11,10 @@ import com.drivinglicense.enums.ServiceType;
 import com.drivinglicense.exception.BusinessException;
 import com.drivinglicense.exception.ResourceNotFoundException;
 import com.drivinglicense.mapper.RequestMapper;
+import com.drivinglicense.repository.LicenseCategoryRepository;
 import com.drivinglicense.repository.PersonRepository;
 import com.drivinglicense.repository.RequestRepository;
 import com.drivinglicense.service.RequestService;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.drivinglicense.entity.LicenseCategory;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -35,9 +34,8 @@ public class RequestServiceImpl implements RequestService {
     private final RequestRepository requestRepository;
     private final PersonRepository personRepository;
     private final RequestMapper requestMapper;
+    private final LicenseCategoryRepository licenseCategoryRepository;
 
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @Override
     @Transactional
@@ -55,7 +53,8 @@ public class RequestServiceImpl implements RequestService {
         request.setPerson(person);
 
         if (dto.getLicenseCategoryId() != null) {
-            LicenseCategory category = entityManager.getReference(LicenseCategory.class, dto.getLicenseCategoryId());
+            LicenseCategory category = licenseCategoryRepository.findById(dto.getLicenseCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("LicenseCategory", dto.getLicenseCategoryId()));
             request.setLicenseCategory(category);
 
             if (dto.getServiceType() == ServiceType.NEW_LICENSE) {
