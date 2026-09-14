@@ -5,7 +5,6 @@ import com.drivinglicense.dto.request.RequestResponseDTO;
 import com.drivinglicense.dto.request.RequestStatusUpdateDTO;
 import com.drivinglicense.entity.Request;
 import org.mapstruct.Mapper;
-
 import java.util.List;
 
 @Mapper(componentModel = "spring")
@@ -23,7 +22,6 @@ public interface RequestMapper {
         dto.setCancellationDate(request.getCancellationDate());
         dto.setRequestStatus(request.getRequestStatus());
         dto.setServiceType(request.getServiceType());
-
         if(request.getPerson() != null){
             dto.setPersonId(request.getPerson().getId());
             dto.setPersonFullName(request.getPerson().getFirstName() + " " + request.getPerson().getLastName());
@@ -31,13 +29,16 @@ public interface RequestMapper {
         if(request.getLicenseCategory() != null){
             dto.setLicenseCategoryId(request.getLicenseCategory().getId());
         }
+        if(request.getLicense() != null){
+            dto.setLicenseId(request.getLicense().getId());
+            dto.setLicenseNumber(request.getLicense().getLicenseNumber());
+        }
         if(request.getCancelledBy() != null){
             dto.setCancelledByEmail(request.getCancelledBy().getEmail());
         }
         if(request.getOriginalRequest() != null){
             dto.setOriginalRequestId(request.getOriginalRequest().getId());
         }
-
         return dto;
     }
 
