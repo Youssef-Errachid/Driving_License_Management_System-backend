@@ -22,6 +22,8 @@ public class RequestResponseDTO {
     private Long personId;
     private String personFullName;
     private Long licenseCategoryId;
+    private Long licenseId;
+    private String licenseNumber;
     private String cancelledByEmail;
     private Long originalRequestId;
 }

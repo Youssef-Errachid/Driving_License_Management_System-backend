@@ -46,6 +46,10 @@ public class Request {
     private LicenseCategory licenseCategory;
 
     @ManyToOne
+    @JoinColumn(name = "license_id", updatable = false)
+    private License license;
+
+    @ManyToOne
     @JoinColumn(name = "cancelled_by_user_id")
     private User cancelledBy;
 
