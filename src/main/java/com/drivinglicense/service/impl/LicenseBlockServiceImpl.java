@@ -6,6 +6,7 @@ import com.drivinglicense.entity.License;
 import com.drivinglicense.entity.LicenseBlock;
 import com.drivinglicense.entity.Request;
 import com.drivinglicense.enums.BlockingStatus;
+import com.drivinglicense.enums.PaymentType;
 import com.drivinglicense.enums.RequestStatus;
 import com.drivinglicense.enums.ServiceType;
 import com.drivinglicense.exception.BusinessException;
@@ -13,6 +14,7 @@ import com.drivinglicense.exception.ResourceNotFoundException;
 import com.drivinglicense.mapper.LicenseBlockMapper;
 import com.drivinglicense.repository.LicenseBlockRepository;
 import com.drivinglicense.repository.LicenseRepository;
+import com.drivinglicense.repository.PaymentRepository;
 import com.drivinglicense.repository.RequestRepository;
 import com.drivinglicense.service.LicenseBlockService;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,7 @@ public class LicenseBlockServiceImpl implements LicenseBlockService {
     private final LicenseBlockRepository licenseBlockRepository;
     private final LicenseRepository licenseRepository;
     private final RequestRepository requestRepository;
+    private final PaymentRepository paymentRepository;
     private final LicenseBlockMapper licenseBlockMapper;
 
     @Override
@@ -69,6 +72,13 @@ public class LicenseBlockServiceImpl implements LicenseBlockService {
 
         LicenseBlock activeBlock = licenseBlockRepository.findByLicense_IdAndUnblockingDateIsNull(license.getId())
                 .orElseThrow(() -> new BusinessException("no active block found for this license"));
+
+        if (!paymentRepository.existsByRequest_IdAndPaymentType(request.getId(), PaymentType.APPLICATION_FEE)) {
+            throw new BusinessException("the application fee for this request has not been paid yet");
+        }
+        if (!paymentRepository.existsByRequest_IdAndPaymentType(request.getId(), PaymentType.FINE)) {
+            throw new BusinessException("the fine for this license has not been paid yet");
+        }
 
         activeBlock.setUnblockingDate(LocalDate.now());
         license.setBlockingStatus(BlockingStatus.UNBLOCKED);

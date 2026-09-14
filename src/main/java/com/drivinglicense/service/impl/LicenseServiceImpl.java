@@ -14,6 +14,7 @@ import com.drivinglicense.entity.User;
 import com.drivinglicense.entity.VisionExam;
 import com.drivinglicense.enums.ExamResult;
 import com.drivinglicense.enums.IssueReason;
+import com.drivinglicense.enums.PaymentType;
 import com.drivinglicense.enums.RequestStatus;
 import com.drivinglicense.enums.ServiceType;
 import com.drivinglicense.exception.BusinessException;
@@ -22,6 +23,7 @@ import com.drivinglicense.mapper.LicenseMapper;
 import com.drivinglicense.repository.DriverRepository;
 import com.drivinglicense.repository.ExamRepository;
 import com.drivinglicense.repository.LicenseRepository;
+import com.drivinglicense.repository.PaymentRepository;
 import com.drivinglicense.repository.RequestRepository;
 import com.drivinglicense.service.LicenseService;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +44,7 @@ public class LicenseServiceImpl implements LicenseService {
     private final RequestRepository requestRepository;
     private final DriverRepository driverRepository;
     private final ExamRepository examRepository;
+    private final PaymentRepository paymentRepository;
     private final LicenseMapper licenseMapper;
 
     @Override
@@ -56,6 +59,8 @@ public class LicenseServiceImpl implements LicenseService {
 
         IssueReason issueReason = mapServiceTypeToIssueReason(request.getServiceType());
 
+        requireApplicationFeePaid(request);
+
         Person person = request.getPerson();
         LicenseCategory category = request.getLicenseCategory();
         if (category == null) {
@@ -65,6 +70,7 @@ public class LicenseServiceImpl implements LicenseService {
         Driver driver;
         if (issueReason == IssueReason.NEW) {
             validateThreeExamsPassed(request.getId());
+            requireServiceFeePaid(request);
 
             driver = person.getDriver();
             if (driver == null) {
@@ -79,6 +85,12 @@ public class LicenseServiceImpl implements LicenseService {
             if (driver == null) {
                 throw new BusinessException(
                         "this person does not have a driver profile yet; a first license must be issued via NEW_LICENSE first");
+            }
+
+            if (issueReason == IssueReason.RENEWAL) {
+                validateVisionExamPassed(request.getId());
+            } else {
+                requireServiceFeePaid(request);
             }
         }
 
@@ -121,6 +133,18 @@ public class LicenseServiceImpl implements LicenseService {
         };
     }
 
+    private void requireApplicationFeePaid(Request request) {
+        if (!paymentRepository.existsByRequest_IdAndPaymentType(request.getId(), PaymentType.APPLICATION_FEE)) {
+            throw new BusinessException("the application fee for this request has not been paid yet");
+        }
+    }
+
+    private void requireServiceFeePaid(Request request) {
+        if (!paymentRepository.existsByRequest_IdAndPaymentType(request.getId(), PaymentType.SERVICE)) {
+            throw new BusinessException("the service fee for this request has not been paid yet");
+        }
+    }
+
     private void validateThreeExamsPassed(Long requestId) {
         List<Exam> exams = examRepository.findByRequest_IdOrderByIdAsc(requestId);
         boolean visionPassed = exams.stream()
@@ -133,6 +157,15 @@ public class LicenseServiceImpl implements LicenseService {
         if (!visionPassed || !theoryPassed || !practicalPassed) {
             throw new BusinessException(
                     "all three exams (vision, theory, practical) must be passed before issuing the license");
+        }
+    }
+
+    private void validateVisionExamPassed(Long requestId) {
+        List<Exam> exams = examRepository.findByRequest_IdOrderByIdAsc(requestId);
+        boolean visionPassed = exams.stream()
+                .anyMatch(e -> e instanceof VisionExam && e.getResult() == ExamResult.PASSED);
+        if (!visionPassed) {
+            throw new BusinessException("the vision exam must be passed before renewing the license");
         }
     }
 

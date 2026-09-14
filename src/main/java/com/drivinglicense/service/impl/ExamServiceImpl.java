@@ -4,16 +4,19 @@ import com.drivinglicense.dto.exam.ExamResponseDTO;
 import com.drivinglicense.dto.exam.ExamResultDTO;
 import com.drivinglicense.dto.exam.ExamScheduleDTO;
 import com.drivinglicense.entity.Exam;
+import com.drivinglicense.entity.Payment;
 import com.drivinglicense.entity.PracticalExam;
 import com.drivinglicense.entity.Request;
 import com.drivinglicense.entity.TheoryExam;
 import com.drivinglicense.entity.VisionExam;
 import com.drivinglicense.enums.ExamResult;
 import com.drivinglicense.enums.ExamType;
+import com.drivinglicense.enums.PaymentType;
 import com.drivinglicense.exception.BusinessException;
 import com.drivinglicense.exception.ResourceNotFoundException;
 import com.drivinglicense.mapper.ExamMapper;
 import com.drivinglicense.repository.ExamRepository;
+import com.drivinglicense.repository.PaymentRepository;
 import com.drivinglicense.repository.RequestRepository;
 import com.drivinglicense.service.ExamService;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +31,7 @@ public class ExamServiceImpl implements ExamService {
 
     private final ExamRepository examRepository;
     private final RequestRepository requestRepository;
+    private final PaymentRepository paymentRepository;
     private final ExamMapper examMapper;
 
     @Override
@@ -46,9 +50,21 @@ public class ExamServiceImpl implements ExamService {
             throw new BusinessException("an appointment for this exam type is already pending for this request");
         }
 
+        if (!paymentRepository.existsByRequest_IdAndPaymentType(request.getId(), PaymentType.APPLICATION_FEE)) {
+            throw new BusinessException("the application fee for this request has not been paid yet");
+        }
+
+        PaymentType examPaymentType = toPaymentType(dto.getExamType());
+        Payment payment = paymentRepository
+                .findFirstByRequest_IdAndPaymentTypeAndExamIsNull(request.getId(), examPaymentType)
+                .orElseThrow(() -> new BusinessException("the fee for this exam has not been paid yet"));
+
         Exam exam = examMapper.toEntity(dto);
         exam.setRequest(request);
         Exam saved = examRepository.save(exam);
+
+        payment.setExam(saved);
+
         return examMapper.toResponseDTO(saved);
     }
 
@@ -103,6 +119,14 @@ public class ExamServiceImpl implements ExamService {
             case VISION -> exam instanceof VisionExam;
             case THEORY -> exam instanceof TheoryExam;
             case PRACTICAL -> exam instanceof PracticalExam;
+        };
+    }
+
+    private PaymentType toPaymentType(ExamType type) {
+        return switch (type) {
+            case VISION -> PaymentType.VISION_EXAM;
+            case THEORY -> PaymentType.THEORY_EXAM;
+            case PRACTICAL -> PaymentType.PRACTICAL_EXAM;
         };
     }
 
