@@ -10,6 +10,8 @@ import com.drivinglicense.repository.LicenseRepository;
 import com.drivinglicense.service.DriverService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.Cacheable;
+
 
 @Service
 @RequiredArgsConstructor
@@ -20,11 +22,13 @@ public class DriverServiceImpl implements DriverService {
     private final DriverMapper driverMapper;
 
     @Override
+    @Cacheable(value = "drivers", key = "'id_' + #id")
     public DriverResponseDTO getById(Long id) {
         return driverMapper.toResponseDTO(findDriverOrThrow(id));
     }
 
     @Override
+    @Cacheable(value = "drivers", key = "'nn_' + #nationalNumber")
     public DriverResponseDTO getByNationalNumber(String nationalNumber) {
         Driver driver = driverRepository.findByPerson_NationalNumber(nationalNumber)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -33,6 +37,7 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
+    @Cacheable(value = "drivers", key = "'ln_' + #licenseNumber")
     public DriverResponseDTO getByLicenseNumber(String licenseNumber) {
         License license = licenseRepository.findByLicenseNumber(licenseNumber)
                 .orElseThrow(() -> new ResourceNotFoundException(
