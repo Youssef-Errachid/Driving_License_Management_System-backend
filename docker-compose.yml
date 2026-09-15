@@ -1,0 +1,47 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: dlms-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: dlms_db
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: dlms-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  backend:
+    build: .
+    container_name: dlms-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/dlms_db?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-3600000}
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql_data:
