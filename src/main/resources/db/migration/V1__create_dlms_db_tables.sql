@@ -26,19 +26,19 @@ CREATE TABLE driver (
                         CONSTRAINT fk_driver_person FOREIGN KEY (person_id) REFERENCES person (id)
 );
 CREATE TABLE app_user (
-                      id             BIGINT AUTO_INCREMENT PRIMARY KEY,
-                      email          VARCHAR(255) NOT NULL,
-                      password       VARCHAR(255) NULL,
-                      creation_date  DATE         NULL,
-                      user_status    VARCHAR(20)  NULL,
-                      role           VARCHAR(20)  NULL,
-                      person_id      BIGINT       NOT NULL,
+                          id             BIGINT AUTO_INCREMENT PRIMARY KEY,
+                          email          VARCHAR(255) NOT NULL,
+                          password       VARCHAR(255) NULL,
+                          creation_date  DATE         NULL,
+                          user_status    VARCHAR(20)  NULL,
+                          role           VARCHAR(20)  NULL,
+                          person_id      BIGINT       NOT NULL,
 
-                      CONSTRAINT uq_user_email UNIQUE (email),
-                      CONSTRAINT uq_user_person_id UNIQUE (person_id),
-                      CONSTRAINT fk_user_person FOREIGN KEY (person_id) REFERENCES person (id),
-                      CONSTRAINT chk_user_status CHECK (user_status IN ('ACTIVE', 'SUSPENDED')),
-                      CONSTRAINT chk_user_role CHECK (role IN ('ADMIN', 'AGENT'))
+                          CONSTRAINT uq_user_email UNIQUE (email),
+                          CONSTRAINT uq_user_person_id UNIQUE (person_id),
+                          CONSTRAINT fk_user_person FOREIGN KEY (person_id) REFERENCES person (id),
+                          CONSTRAINT chk_user_status CHECK (user_status IN ('ACTIVE', 'SUSPENDED')),
+                          CONSTRAINT chk_user_role CHECK (role IN ('ADMIN', 'AGENT'))
 );
 CREATE TABLE license_category (
                                   id                          BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -66,6 +66,7 @@ CREATE TABLE request (
                          service_type          VARCHAR(30) NULL,
                          person_id             BIGINT      NOT NULL,
                          category_id           BIGINT      NULL,
+                         license_id            BIGINT      NULL,
                          cancelled_by_user_id  BIGINT      NULL,
                          original_request_id   BIGINT      NULL,
 
@@ -104,6 +105,10 @@ CREATE TABLE license (
                              )),
                          CONSTRAINT chk_license_blocking_status CHECK (blocking_status IN ('BLOCKED', 'UNBLOCKED'))
 );
+
+ALTER TABLE request
+    ADD CONSTRAINT fk_request_license FOREIGN KEY (license_id) REFERENCES license (id);
+
 CREATE TABLE license_block (
                                id               BIGINT AUTO_INCREMENT PRIMARY KEY,
                                reason           VARCHAR(255)   NOT NULL,
