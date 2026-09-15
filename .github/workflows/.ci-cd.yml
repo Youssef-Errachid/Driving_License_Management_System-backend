@@ -2,9 +2,9 @@ name: CI/CD
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: main
   pull_request:
-    branches: [ main, develop ]
+    branches: main
 
 jobs:
   build-and-test:
@@ -64,9 +64,12 @@ jobs:
           name: test-results
           path: target/surefire-reports
 
+
   docker-push:
     needs: build-and-test
+
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
     runs-on: ubuntu-latest
 
     steps:
@@ -79,8 +82,8 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push image
-        uses: docker/build-push-action@v5
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
