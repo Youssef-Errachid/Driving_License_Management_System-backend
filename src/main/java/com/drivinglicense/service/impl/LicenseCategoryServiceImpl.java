@@ -10,6 +10,8 @@ import com.drivinglicense.service.LicenseCategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.List;
 
@@ -21,18 +23,20 @@ public class LicenseCategoryServiceImpl implements LicenseCategoryService {
     private final LicenseCategoryMapper licenseCategoryMapper;
 
     @Override
+    @Cacheable("licenseCategories")
     public List<LicenseCategoryResponseDTO> getAll() {
         return licenseCategoryMapper.toResponseDTOList(licenseCategoryRepository.findAll());
     }
 
     @Override
+    @Cacheable(value = "licenseCategories", key = "#id")
     public LicenseCategoryResponseDTO getById(Long id) {
         return licenseCategoryMapper.toResponseDTO(findCategoryOrThrow(id));
     }
 
     @Override
     @Transactional
-    public LicenseCategoryResponseDTO update(Long id, LicenseCategoryUpdateDTO dto) {
+    @CacheEvict(value = "licenseCategories", allEntries = true)    public LicenseCategoryResponseDTO update(Long id, LicenseCategoryUpdateDTO dto) {
         LicenseCategory category = findCategoryOrThrow(id);
         licenseCategoryMapper.updateEntityFromDTO(dto, category);
         return licenseCategoryMapper.toResponseDTO(category);

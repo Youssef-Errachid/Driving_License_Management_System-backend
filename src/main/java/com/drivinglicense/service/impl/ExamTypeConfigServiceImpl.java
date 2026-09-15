@@ -12,6 +12,8 @@ import com.drivinglicense.service.ExamTypeConfigService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.List;
 
@@ -23,17 +25,20 @@ public class ExamTypeConfigServiceImpl implements ExamTypeConfigService {
     private final ExamTypeConfigMapper examTypeConfigMapper;
 
     @Override
+    @Cacheable("examTypeConfigs")
     public List<ExamTypeConfigResponseDTO> getAll() {
         return examTypeConfigMapper.toResponseDTOList(examTypeConfigRepository.findAll());
     }
 
     @Override
+    @Cacheable(value = "examTypeConfigs", key = "#id")
     public ExamTypeConfigResponseDTO getById(Long id) {
         return examTypeConfigMapper.toResponseDTO(findConfigOrThrow(id));
     }
 
     @Override
     @Transactional
+    @CacheEvict(value = "examTypeConfigs", allEntries = true)
     public ExamTypeConfigResponseDTO update(Long id, ExamTypeConfigUpdateDTO dto) {
         ExamTypeConfig config = findConfigOrThrow(id);
 

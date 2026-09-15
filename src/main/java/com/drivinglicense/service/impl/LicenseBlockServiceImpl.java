@@ -20,6 +20,8 @@ import com.drivinglicense.service.LicenseBlockService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.cache.annotation.CacheEvict;
+
 
 import java.time.LocalDate;
 import java.util.List;
@@ -36,6 +38,7 @@ public class LicenseBlockServiceImpl implements LicenseBlockService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "licenses", key = "#dto.licenseId")
     public LicenseBlockResponseDTO block(LicenseBlockCreateDTO dto) {
         License license = licenseRepository.findById(dto.getLicenseId())
                 .orElseThrow(() -> new ResourceNotFoundException("License", dto.getLicenseId()));
@@ -55,6 +58,7 @@ public class LicenseBlockServiceImpl implements LicenseBlockService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "licenses", key = "#result.licenseId")
     public LicenseBlockResponseDTO unblock(Long requestId) {
         Request request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new ResourceNotFoundException("Request", requestId));

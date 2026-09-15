@@ -15,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.cache.annotation.CacheEvict;
+
 
 import java.util.List;
 
@@ -55,6 +57,7 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "drivers", allEntries = true)
     public PersonResponseDTO update(Long id, PersonUpdateDTO dto) {
         Person person = findPersonOrThrow(id);
         personMapper.updateEntityFromDTO(dto, person);

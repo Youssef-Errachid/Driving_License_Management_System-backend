@@ -31,6 +31,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -118,6 +119,7 @@ public class LicenseServiceImpl implements LicenseService {
     }
 
     @Override
+    @Cacheable(value = "licenses", key = "#id")
     public List<LicenseResponseDTO> getByDriverId(Long driverId) {
         return licenseMapper.toResponseDTOList(licenseRepository.findByDriver_Id(driverId));
     }
