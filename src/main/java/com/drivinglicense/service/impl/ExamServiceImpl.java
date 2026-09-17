@@ -22,6 +22,10 @@ import com.drivinglicense.service.ExamService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.drivinglicense.dto.common.PageResponseDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import java.time.LocalDate;
 
 import java.util.List;
 
@@ -89,6 +93,29 @@ public class ExamServiceImpl implements ExamService {
     @Override
     public List<ExamResponseDTO> getByRequestId(Long requestId) {
         return examMapper.toResponseDTOList(examRepository.findByRequest_IdOrderByIdAsc(requestId));
+    }
+
+    @Override
+    public PageResponseDTO<ExamResponseDTO> getAll(LocalDate appointmentDate, ExamType examType,
+                                                   boolean pendingOnly, int page, int size) {
+        Class<? extends Exam> examClass = toExamClass(examType);
+
+        Page<Exam> result = examRepository.filter(
+                appointmentDate, examClass, pendingOnly, PageRequest.of(page, size));
+
+        List<ExamResponseDTO> content = examMapper.toResponseDTOList(result.getContent());
+        return new PageResponseDTO<>(content, result.getNumber(), result.getTotalPages(), result.getTotalElements());
+    }
+
+    private Class<? extends Exam> toExamClass(ExamType type) {
+        if (type == null) {
+            return null;
+        }
+        return switch (type) {
+            case VISION -> VisionExam.class;
+            case THEORY -> TheoryExam.class;
+            case PRACTICAL -> PracticalExam.class;
+        };
     }
 
     private void validateExamOrder(ExamType requestedType, List<Exam> existingExams) {

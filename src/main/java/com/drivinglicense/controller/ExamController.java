@@ -10,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.drivinglicense.dto.common.PageResponseDTO;
+import com.drivinglicense.enums.ExamType;
+import java.time.LocalDate;
 
 import java.util.List;
 
@@ -25,6 +28,19 @@ public class ExamController {
     public ResponseEntity<ApiResponseDTO<ExamResponseDTO>> schedule(@Valid @RequestBody ExamScheduleDTO dto) {
         ExamResponseDTO response = examService.schedule(dto);
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Exam scheduled successfully.", response));
+    }
+
+    @PreAuthorize("hasRole('AGENT')")
+    @GetMapping
+    public ResponseEntity<ApiResponseDTO<PageResponseDTO<ExamResponseDTO>>> getAll(
+            @RequestParam(required = false) LocalDate appointmentDate,
+            @RequestParam(required = false) ExamType examType,
+            @RequestParam(defaultValue = "false") boolean pendingOnly,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        PageResponseDTO<ExamResponseDTO> response =
+                examService.getAll(appointmentDate, examType, pendingOnly, page, size);
+        return ResponseEntity.ok(new ApiResponseDTO<>(true, "Exams retrieved successfully.", response));
     }
 
     @PreAuthorize("hasRole('AGENT')")

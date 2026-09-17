@@ -19,6 +19,7 @@ public class ExamResponseDTO {
     private LocalDate resultDate;
     private ExamResult examResult;
     private Integer score;
-    private  Long requestId;
-
+    private Long requestId;
+    private String personFullName;
+    private String personNationalNumber;
 }

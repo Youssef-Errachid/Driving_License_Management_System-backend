@@ -42,6 +42,12 @@ public interface ExamMapper {
 
         if(exam.getRequest() != null){
             dto.setRequestId(exam.getRequest().getId());
+            if (exam.getRequest().getPerson() != null) {
+                dto.setPersonFullName(
+                        exam.getRequest().getPerson().getFirstName() + " " + exam.getRequest().getPerson().getLastName()
+                );
+                dto.setPersonNationalNumber(exam.getRequest().getPerson().getNationalNumber());
+            }
         }
 
         if(exam instanceof VisionExam){

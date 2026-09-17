@@ -1,6 +1,8 @@
 package com.drivinglicense.repository;
 
 import com.drivinglicense.entity.Exam;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,4 +24,13 @@ public interface ExamRepository extends JpaRepository<Exam, Long> {
     long countPracticalByAppointmentDate(@Param("date") LocalDate date);
 
     List<Exam> findByRequest_IdOrderByIdAsc(Long requestId);
+
+    @Query("SELECT e FROM Exam e WHERE " +
+            "(:appointmentDate IS NULL OR e.appointmentDate = :appointmentDate) AND " +
+            "(:examType IS NULL OR TYPE(e) = :examType) AND " +
+            "(:pendingOnly = false OR e.result IS NULL)")
+    Page<Exam> filter(@Param("appointmentDate") LocalDate appointmentDate,
+                      @Param("examType") Class<? extends Exam> examType,
+                      @Param("pendingOnly") boolean pendingOnly,
+                      Pageable pageable);
 }
