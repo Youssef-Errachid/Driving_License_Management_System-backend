@@ -1,5 +1,6 @@
 package com.drivinglicense.service.impl;
 
+import com.drivinglicense.dto.common.PageResponseDTO;
 import com.drivinglicense.dto.driver.DriverResponseDTO;
 import com.drivinglicense.entity.Driver;
 import com.drivinglicense.entity.License;
@@ -9,8 +10,12 @@ import com.drivinglicense.repository.DriverRepository;
 import com.drivinglicense.repository.LicenseRepository;
 import com.drivinglicense.service.DriverService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.cache.annotation.Cacheable;
+
+import java.util.List;
 
 
 @Service
@@ -20,6 +25,13 @@ public class DriverServiceImpl implements DriverService {
     private final DriverRepository driverRepository;
     private final LicenseRepository licenseRepository;
     private final DriverMapper driverMapper;
+
+    @Override
+    public PageResponseDTO<DriverResponseDTO> getAll(int page, int size) {
+        Page<Driver> result = driverRepository.findAll(PageRequest.of(page, size));
+        List<DriverResponseDTO> content = driverMapper.toResponseDTOList(result.getContent());
+        return new PageResponseDTO<>(content, result.getNumber(), result.getTotalPages(), result.getTotalElements());
+    }
 
     @Override
     @Cacheable(value = "drivers", key = "'id_' + #id")

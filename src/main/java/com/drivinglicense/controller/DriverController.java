@@ -1,6 +1,7 @@
 package com.drivinglicense.controller;
 
 import com.drivinglicense.dto.common.ApiResponseDTO;
+import com.drivinglicense.dto.common.PageResponseDTO;
 import com.drivinglicense.dto.driver.DriverResponseDTO;
 import com.drivinglicense.exception.BusinessException;
 import com.drivinglicense.service.DriverService;
@@ -15,6 +16,15 @@ import org.springframework.web.bind.annotation.*;
 public class DriverController {
 
     private final DriverService driverService;
+
+    @PreAuthorize("hasRole('AGENT')")
+    @GetMapping
+    public ResponseEntity<ApiResponseDTO<PageResponseDTO<DriverResponseDTO>>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        PageResponseDTO<DriverResponseDTO> response = driverService.getAll(page, size);
+        return ResponseEntity.ok(new ApiResponseDTO<>(true, "Drivers retrieved successfully.", response));
+    }
 
     @PreAuthorize("hasRole('AGENT')")
     @GetMapping("/{id}")
