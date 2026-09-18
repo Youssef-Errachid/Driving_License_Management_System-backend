@@ -44,7 +44,7 @@ public class PersonController {
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Persons retrieved successfully.", response));
     }
 
-    @PreAuthorize("hasRole('AGENT')")
+    @PreAuthorize("hasAnyRole('ADMIN','AGENT')")
     @GetMapping("/search")
     public ResponseEntity<ApiResponseDTO<List<PersonResponseDTO>>> search(@RequestParam String query) {
         List<PersonResponseDTO> response = personService.search(query);
