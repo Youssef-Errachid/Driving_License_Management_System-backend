@@ -1,8 +1,11 @@
 package com.drivinglicense.controller;
 
 import com.drivinglicense.dto.common.ApiResponseDTO;
+import com.drivinglicense.dto.common.PageResponseDTO;
 import com.drivinglicense.dto.license.LicenseCreateDTO;
 import com.drivinglicense.dto.license.LicenseResponseDTO;
+import com.drivinglicense.enums.BlockingStatus;
+import com.drivinglicense.enums.IssueReason;
 import com.drivinglicense.service.LicenseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,4 +42,17 @@ public class LicenseController {
         List<LicenseResponseDTO> response = licenseService.getByDriverId(driverId);
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Licenses retrieved successfully.", response));
     }
+
+    @PreAuthorize("hasAnyRole('ADMIN','AGENT')")
+    @GetMapping
+    public ResponseEntity<ApiResponseDTO<PageResponseDTO<LicenseResponseDTO>>> getAll(
+            @RequestParam(required = false) BlockingStatus blockingStatus,
+            @RequestParam(required = false) IssueReason issueReason,
+            @RequestParam(required = false) String query,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+                PageResponseDTO<LicenseResponseDTO> response =
+                                licenseService.getAll(blockingStatus, issueReason, query, page, size);
+                return ResponseEntity.ok(new ApiResponseDTO<>(true, "Licenses retrieved successfully.", response));
+            }
 }

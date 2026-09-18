@@ -1,5 +1,6 @@
 package com.drivinglicense.service.impl;
 
+import com.drivinglicense.dto.common.PageResponseDTO;
 import com.drivinglicense.dto.license.LicenseCreateDTO;
 import com.drivinglicense.dto.license.LicenseResponseDTO;
 import com.drivinglicense.entity.Driver;
@@ -12,11 +13,7 @@ import com.drivinglicense.entity.Request;
 import com.drivinglicense.entity.TheoryExam;
 import com.drivinglicense.entity.User;
 import com.drivinglicense.entity.VisionExam;
-import com.drivinglicense.enums.ExamResult;
-import com.drivinglicense.enums.IssueReason;
-import com.drivinglicense.enums.PaymentType;
-import com.drivinglicense.enums.RequestStatus;
-import com.drivinglicense.enums.ServiceType;
+import com.drivinglicense.enums.*;
 import com.drivinglicense.exception.BusinessException;
 import com.drivinglicense.exception.ResourceNotFoundException;
 import com.drivinglicense.mapper.LicenseMapper;
@@ -27,6 +24,8 @@ import com.drivinglicense.repository.PaymentRepository;
 import com.drivinglicense.repository.RequestRepository;
 import com.drivinglicense.service.LicenseService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -188,4 +187,13 @@ public class LicenseServiceImpl implements LicenseService {
         return licenseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("License", id));
     }
+
+    @Override
+    public PageResponseDTO<LicenseResponseDTO> getAll(BlockingStatus blockingStatus, IssueReason issueReason,
+                                                      String query, int page, int size) {
+                Page<License> result = licenseRepository.filter(
+                                blockingStatus, issueReason, query, PageRequest.of(page, size));
+                List<LicenseResponseDTO> content = licenseMapper.toResponseDTOList(result.getContent());
+                return new PageResponseDTO<>(content, result.getNumber(), result.getTotalPages(), result.getTotalElements());
+            }
 }
