@@ -27,7 +27,7 @@ public class DriverServiceImpl implements DriverService {
     private final DriverMapper driverMapper;
 
     @Override
-    @Cacheable(value = "users", key = "'page:' + #page + ':size:' + #size")
+    @Cacheable(value = "drivers", key = "'page:' + #page + ':size:' + #size")
     public PageResponseDTO<DriverResponseDTO> getAll(int page, int size) {
         Page<Driver> result = driverRepository.findAll(PageRequest.of(page, size));
         List<DriverResponseDTO> content = driverMapper.toResponseDTOList(result.getContent());

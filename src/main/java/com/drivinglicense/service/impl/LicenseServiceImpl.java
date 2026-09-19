@@ -31,6 +31,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -49,6 +50,7 @@ public class LicenseServiceImpl implements LicenseService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "drivers", allEntries = true)
     public LicenseResponseDTO create(LicenseCreateDTO dto) {
         Request request = requestRepository.findById(dto.getRequestId())
                 .orElseThrow(() -> new ResourceNotFoundException("Request", dto.getRequestId()));
