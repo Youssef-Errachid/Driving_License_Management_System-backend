@@ -24,7 +24,7 @@ services:
       - "6379:6379"
 
   backend:
-    image: errachid/dlms-backend:latest
+    build: .
     container_name: dlms-backend
     restart: unless-stopped
     depends_on:
