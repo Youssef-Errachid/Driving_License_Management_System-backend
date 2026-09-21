@@ -2,6 +2,7 @@ package com.drivinglicense.controller;
 
 import com.drivinglicense.dto.common.ApiResponseDTO;
 import com.drivinglicense.dto.common.PageResponseDTO;
+import com.drivinglicense.dto.user.ChangePasswordDTO;
 import com.drivinglicense.dto.user.UserCreateDTO;
 import com.drivinglicense.dto.user.UserResponseDTO;
 import com.drivinglicense.dto.user.UserUpdateDTO;
@@ -57,5 +58,12 @@ public class UserController {
     public ResponseEntity<ApiResponseDTO<Void>> delete(@PathVariable Long id) {
         userService.delete(id);
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "User deleted successfully.", null));
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN','AGENT')")
+    @PutMapping("/me/password")
+    public ResponseEntity<ApiResponseDTO<Void>> changePassword(@Valid @RequestBody ChangePasswordDTO dto) {
+        userService.changePassword(dto);
+        return ResponseEntity.ok(new ApiResponseDTO<>(true, "Password updated successfully.", null));
     }
 }

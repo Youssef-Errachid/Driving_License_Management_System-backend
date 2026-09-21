@@ -25,9 +25,6 @@ public class UserCreateDTO {
     @Email(message = "invalid email")
     private String email;
 
-    @NotBlank(message = "password is required")
-    private String password;
-
     @NotNull(message = "role is required")
     private Role role;
 }

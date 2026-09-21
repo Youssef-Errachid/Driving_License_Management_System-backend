@@ -21,6 +21,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.drivinglicense.service.EmailService;
+import java.security.SecureRandom;
+import com.drivinglicense.dto.user.ChangePasswordDTO;
+import com.drivinglicense.exception.UnauthorizedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 
@@ -32,6 +38,19 @@ public class UserServiceImpl implements UserService {
     private final PersonRepository personRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+
+    private static final String PASSWORD_CHARS =
+            "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%";
+    private static final SecureRandom RANDOM = new SecureRandom();
+
+    private String generateRandomPassword() {
+        StringBuilder sb = new StringBuilder(12);
+        for (int i = 0; i < 12; i++) {
+            sb.append(PASSWORD_CHARS.charAt(RANDOM.nextInt(PASSWORD_CHARS.length())));
+        }
+        return sb.toString();
+    }
 
     @Override
     @Transactional
@@ -48,12 +67,18 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException("a user with this email already exists");
         }
 
+        String rawPassword = generateRandomPassword();
+
         User user = userMapper.toEntity(dto);
-        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        user.setPassword(passwordEncoder.encode(rawPassword));
         user.setPerson(person);
         user.setUserStatus(UserStatus.ACTIVE);
 
         User saved = userRepository.save(user);
+
+        String fullName = person.getFirstName() + " " + person.getLastName();
+        emailService.sendUserCredentials(saved.getEmail(), fullName, rawPassword, saved.getRole().name());
+
         return userMapper.toResponseDTO(saved);
     }
 
@@ -90,5 +115,23 @@ public class UserServiceImpl implements UserService {
     private User findUserOrThrow(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", id));
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(ChangePasswordDTO dto) {
+        User currentUser = getCurrentUser();
+
+        if (!passwordEncoder.matches(dto.getCurrentPassword(), currentUser.getPassword())) {
+            throw new UnauthorizedException("current password is incorrect");
+        }
+
+        currentUser.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        userRepository.save(currentUser);
+    }
+
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (User) authentication.getPrincipal();
     }
 }
