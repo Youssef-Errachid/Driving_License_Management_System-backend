@@ -30,7 +30,7 @@ public class ExamController {
         return ResponseEntity.ok(new ApiResponseDTO<>(true, "Exam scheduled successfully.", response));
     }
 
-    @PreAuthorize("hasRole('AGENT')")
+    @PreAuthorize("hasAnyRole('ADMIN','AGENT')")
     @GetMapping
     public ResponseEntity<ApiResponseDTO<PageResponseDTO<ExamResponseDTO>>> getAll(
             @RequestParam(required = false) LocalDate appointmentDate,

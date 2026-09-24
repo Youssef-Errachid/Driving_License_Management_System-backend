@@ -17,7 +17,7 @@ public class DriverController {
 
     private final DriverService driverService;
 
-    @PreAuthorize("hasRole('AGENT')")
+    @PreAuthorize("hasAnyRole('ADMIN','AGENT')")
     @GetMapping
     public ResponseEntity<ApiResponseDTO<PageResponseDTO<DriverResponseDTO>>> getAll(
             @RequestParam(defaultValue = "0") int page,
