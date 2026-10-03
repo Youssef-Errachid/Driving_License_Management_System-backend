@@ -26,4 +26,5 @@ public class RequestResponseDTO {
     private String licenseNumber;
     private String cancelledByEmail;
     private Long originalRequestId;
+    private boolean hasPayments;
 }

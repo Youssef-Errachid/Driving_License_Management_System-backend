@@ -29,7 +29,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -91,7 +93,9 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public RequestResponseDTO getById(Long id) {
-        return requestMapper.toResponseDTO(findRequestOrThrow(id));
+        RequestResponseDTO dto = requestMapper.toResponseDTO(findRequestOrThrow(id));
+        dto.setHasPayments(paymentRepository.existsByRequest_Id(id));
+        return dto;
     }
 
     @Override
@@ -100,6 +104,13 @@ public class RequestServiceImpl implements RequestService {
         Page<Request> result = requestRepository.filter(
                 status, serviceType, nationalNumber, PageRequest.of(page, size));
         List<RequestResponseDTO> content = requestMapper.toResponseDTOList(result.getContent());
+
+        List<Long> requestIds = content.stream().map(RequestResponseDTO::getId).toList();
+        Set<Long> idsWithPayments = requestIds.isEmpty()
+                ? Set.of()
+                : new HashSet<>(paymentRepository.findRequestIdsWithPayments(requestIds));
+        content.forEach(dto -> dto.setHasPayments(idsWithPayments.contains(dto.getId())));
+
         return new PageResponseDTO<>(content, result.getNumber(), result.getTotalPages(), result.getTotalElements());
     }
 
