@@ -16,6 +16,7 @@ import com.drivinglicense.exception.ResourceNotFoundException;
 import com.drivinglicense.mapper.RequestMapper;
 import com.drivinglicense.repository.LicenseCategoryRepository;
 import com.drivinglicense.repository.LicenseRepository;
+import com.drivinglicense.repository.PaymentRepository;
 import com.drivinglicense.repository.PersonRepository;
 import com.drivinglicense.repository.RequestRepository;
 import com.drivinglicense.service.RequestService;
@@ -39,6 +40,7 @@ public class RequestServiceImpl implements RequestService {
     private final LicenseCategoryRepository licenseCategoryRepository;
     private final LicenseRepository licenseRepository;
     private final RequestMapper requestMapper;
+    private final PaymentRepository paymentRepository;
 
     @Override
     @Transactional
@@ -108,6 +110,10 @@ public class RequestServiceImpl implements RequestService {
 
         if (request.getRequestStatus() != RequestStatus.NEW) {
             throw new BusinessException("only a request with status NEW can be cancelled");
+        }
+
+        if(paymentRepository.existsByRequest_Id(request.getId())){
+            throw new BusinessException("a request with recorded payments cannot be cancelled");
         }
 
         request.setRequestStatus(RequestStatus.CANCELLED);

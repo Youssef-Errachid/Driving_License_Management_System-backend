@@ -11,6 +11,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     List<Payment> findByRequest_Id(Long requestId);
 
+    boolean existsByRequest_Id(Long requestId);
+
     boolean existsByRequest_IdAndPaymentType(Long requestId, PaymentType paymentType);
 
     Optional<Payment> findFirstByRequest_IdAndPaymentTypeAndExamIsNull(Long requestId, PaymentType paymentType);
