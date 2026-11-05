@@ -14,23 +14,30 @@ public interface ExamRepository extends JpaRepository<Exam, Long> {
 
     long countByAppointmentDate(LocalDate date);
 
-    @Query("SELECT COUNT(e) FROM VisionExam e WHERE e.appointmentDate = :date")
+    @Query("SELECT COUNT(e) FROM VisionExam e WHERE e.appointmentDate = :date AND " +
+            "(e.result IS NOT NULL OR e.request.requestStatus <> com.drivinglicense.enums.RequestStatus.CANCELLED)")
     long countVisionByAppointmentDate(@Param("date") LocalDate date);
 
-    @Query("SELECT COUNT(e) FROM TheoryExam e WHERE e.appointmentDate = :date")
+    @Query("SELECT COUNT(e) FROM TheoryExam e WHERE e.appointmentDate = :date AND " +
+            "(e.result IS NOT NULL OR e.request.requestStatus <> com.drivinglicense.enums.RequestStatus.CANCELLED)")
     long countTheoryByAppointmentDate(@Param("date") LocalDate date);
 
-    @Query("SELECT COUNT(e) FROM PracticalExam e WHERE e.appointmentDate = :date")
+    @Query("SELECT COUNT(e) FROM PracticalExam e WHERE e.appointmentDate = :date AND " +
+            "(e.result IS NOT NULL OR e.request.requestStatus <> com.drivinglicense.enums.RequestStatus.CANCELLED)")
     long countPracticalByAppointmentDate(@Param("date") LocalDate date);
-
-    List<Exam> findByRequest_IdOrderByIdAsc(Long requestId);
 
     @Query("SELECT e FROM Exam e WHERE " +
             "(:appointmentDate IS NULL OR e.appointmentDate = :appointmentDate) AND " +
             "(:examType IS NULL OR TYPE(e) = :examType) AND " +
-            "(:pendingOnly = false OR e.result IS NULL)")
+            "(:pendingOnly = false OR e.result IS NULL) AND " +
+            "(e.result IS NOT NULL OR e.request.requestStatus <> com.drivinglicense.enums.RequestStatus.CANCELLED)")
     Page<Exam> filter(@Param("appointmentDate") LocalDate appointmentDate,
                       @Param("examType") Class<? extends Exam> examType,
                       @Param("pendingOnly") boolean pendingOnly,
                       Pageable pageable);
+
+
+    List<Exam> findByRequest_IdOrderByIdAsc(Long requestId);
+
+
 }
